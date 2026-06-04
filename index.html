@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Landslides</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #000;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* ── Phone shell ── */
+    .phone {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100dvh;
+      background: #0e0e0e;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ── Screens ── */
+    .screen {
+      display: none;
+      width: 100%;
+      min-height: 100dvh;
+      padding: 20px;
+      flex-direction: column;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* ── Navbar row: navbar pill + lang toggle pill side by side ── */
+    .navbar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50px;
+      height: 60px;
+      padding: 0 20px;
+      flex: 1;
+    }
+
+    .navbar-home-icon {
+      display: flex;
+      align-items: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    /* ── Language toggle (standalone pill next to navbar) ── */
+    .lang-toggle {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50px;
+      height: 60px;
+      padding: 0 5px;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .lang-btn {
+      background: none;
+      border: none;
+      border-radius: 50px;
+      height: 44px;
+      padding: 0 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+      white-space: nowrap;
+    }
+
+    .lang-btn.active {
+      background: rgba(255, 255, 255, 0.85);
+      color: #0e0e0e;
+    }
+
+    .nav-about-btn {
+      background: none;
+      border: none;
+      color: #f6f6f6;
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(18px, 9vw, 36px);
+      font-weight: 400;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+
+    /* ── Home screen ── */
+    #screen-home .inner {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .welcome-text {
+      font-size: clamp(28px, 12vw, 48px);
+      font-weight: 400;
+      color: #fff;
+      line-height: 1.1;
+      margin-top: clamp(60px, 27vh, 230px);
+      flex-shrink: 0;
+    }
+
+    #screen-home .btn-primary {
+      margin-top: auto;
+    }
+
+    /* ── Inner layout for term / about ── */
+    #screen-term .inner,
+    #screen-about .inner {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 34px;
+      margin-top: 30px;
+    }
+
+    /* ── Back nav row ── */
+    .back-nav {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 500;
+      color: #fff;
+      line-height: 1;
+    }
+
+    /* ── Content card (image + text) ── */
+    .content-card {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex: 1;
+    }
+
+    .content-image {
+      width: 100%;
+      height: clamp(160px, 35vh, 296px);
+      object-fit: cover;
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .content-text {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .term-title {
+      font-size: clamp(28px, 12vw, 48px);
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.1;
+    }
+
+    .term-sub {
+      font-size: clamp(20px, 8vw, 32px);
+      font-weight: 400;
+    }
+
+    .term-counter {
+      margin-left: auto;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.4);
+      flex-shrink: 0;
+    }
+
+    .term-desc {
+      font-size: 16px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.5;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      background: #fff;
+      border-radius: 50px;
+      height: 60px;
+      color: #0e0e0e;
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(18px, 9vw, 36px);
+      font-weight: 400;
+      border: none;
+      width: 100%;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: clamp(12px, 12vw, 49px);
+      flex-shrink: 0;
+    }
+
+    .btn-back {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50px;
+      height: 60px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(18px, 9vw, 36px);
+      font-weight: 400;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-next {
+      flex: 1;
+      background: #fff;
+      border-radius: 50px;
+      height: 60px;
+      color: #0e0e0e;
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(18px, 9vw, 36px);
+      font-weight: 400;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* ── Transitions ── */
+    .screen {
+      animation: none;
+    }
+
+    .screen.active {
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* ── Responsive: very small screens ── */
+    @media (max-width: 393px) {
+      body { background: #0e0e0e; }
+    }
+
+    /* ── Responsive: tablet / desktop ── */
+    @media (min-width: 500px) {
+      body { padding: 30px 0; }
+      .phone {
+        border-radius: 40px;
+        box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.07);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- ═══════════════════════════════════════
+       Screen 1 — Home
+  ════════════════════════════════════════ -->
+  <div class="screen active" id="screen-home">
+    <div class="navbar-row">
+      <nav class="navbar">
+        <button class="navbar-home-icon" onclick="showScreen('screen-home')" aria-label="Home">
+          <svg width="22" height="25" viewBox="0 0 22 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 22.605V8.94614C0 8.54386 0.0900951 8.16305 0.270286 7.80372C0.450476 7.44438 0.698762 7.14843 1.01514 6.91586L9.47729 0.507572C9.92043 0.169191 10.4264 0 10.9953 0C11.5641 0 12.0733 0.169191 12.5227 0.507572L20.9849 6.91429C21.3023 7.14686 21.5506 7.44333 21.7297 7.80372C21.9099 8.16305 22 8.54386 22 8.94614V22.605C22 23.0261 21.8434 23.3933 21.5301 23.7066C21.2169 24.0198 20.8497 24.1764 20.4286 24.1764H14.3251C13.9648 24.1764 13.663 24.0549 13.42 23.8119C13.177 23.5678 13.0554 23.266 13.0554 22.9067V14.9301H8.94457V22.9067C8.94457 23.2671 8.82305 23.5688 8.58 23.8119C8.33695 24.0549 8.03576 24.1764 7.67643 24.1764H1.57143C1.15029 24.1764 0.783095 24.0198 0.469857 23.7066C0.156619 23.3933 0 23.0261 0 22.605Z" fill="#F7F7F7"/>
+          </svg>
+        </button>
+        <button class="nav-about-btn" onclick="showScreen('screen-about')" data-i18n="nav-about">About</button>
+      </nav>
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('da')">DA</button>
+      </div>
+    </div>
+
+    <div class="inner">
+      <p class="welcome-text" data-i18n="welcome">Hello,<br>welcome to the world of landslides</p>
+      <button class="btn-primary" onclick="showScreen('screen-term')" data-i18n="learn-btn">Let's learn!</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       Screen 2 — Landslides Terms
+  ════════════════════════════════════════ -->
+  <div class="screen" id="screen-term">
+    <div class="navbar-row">
+      <nav class="navbar">
+        <button class="navbar-home-icon" onclick="showScreen('screen-home')" aria-label="Home">
+          <svg width="22" height="25" viewBox="0 0 22 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 22.605V8.94614C0 8.54386 0.0900951 8.16305 0.270286 7.80372C0.450476 7.44438 0.698762 7.14843 1.01514 6.91586L9.47729 0.507572C9.92043 0.169191 10.4264 0 10.9953 0C11.5641 0 12.0733 0.169191 12.5227 0.507572L20.9849 6.91429C21.3023 7.14686 21.5506 7.44333 21.7297 7.80372C21.9099 8.16305 22 8.54386 22 8.94614V22.605C22 23.0261 21.8434 23.3933 21.5301 23.7066C21.2169 24.0198 20.8497 24.1764 20.4286 24.1764H14.3251C13.9648 24.1764 13.663 24.0549 13.42 23.8119C13.177 23.5678 13.0554 23.266 13.0554 22.9067V14.9301H8.94457V22.9067C8.94457 23.2671 8.82305 23.5688 8.58 23.8119C8.33695 24.0549 8.03576 24.1764 7.67643 24.1764H1.57143C1.15029 24.1764 0.783095 24.0198 0.469857 23.7066C0.156619 23.3933 0 23.0261 0 22.605Z" fill="#F7F7F7"/>
+          </svg>
+        </button>
+        <button class="nav-about-btn" onclick="showScreen('screen-about')" data-i18n="nav-about">About</button>
+      </nav>
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('da')">DA</button>
+      </div>
+    </div>
+
+    <div class="inner">
+      <div class="back-nav">
+        <button class="back-btn" onclick="termBack()" aria-label="Back">
+          <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.8 6L7.4 10.6L6 12L0 6L6 0L7.4 1.4L2.8 6Z" fill="#f7f7f7"/>
+          </svg>
+        </button>
+        <h2 class="section-title" data-i18n="terms-section">Landslides terms</h2>
+        <span class="term-counter" id="term-counter">1 / 42</span>
+      </div>
+
+      <div class="content-card">
+        <img class="content-image" id="term-image" src="https://www.figma.com/api/mcp/asset/8da415c6-8b0c-4678-a914-538664ed1237" alt="Landslide term">
+        <div class="content-text">
+          <h3 class="term-title" id="term-title-el">Fjeldskred <span class="term-sub">(Rock avalanche)</span></h3>
+          <p class="term-desc" id="term-desc-el">Large and extremely fast flow of boulders in steep terrain. A landslide is actually a current, but the term is commonly used and is included here as a technical term.</p>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="termBack()" data-i18n="back-btn">Back</button>
+        <button class="btn-next" onclick="termNext()" data-i18n="next-btn">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       Screen 3 — About
+  ════════════════════════════════════════ -->
+  <div class="screen" id="screen-about">
+    <div class="navbar-row">
+      <nav class="navbar">
+        <button class="navbar-home-icon" onclick="showScreen('screen-home')" aria-label="Home">
+          <svg width="22" height="25" viewBox="0 0 22 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 22.605V8.94614C0 8.54386 0.0900951 8.16305 0.270286 7.80372C0.450476 7.44438 0.698762 7.14843 1.01514 6.91586L9.47729 0.507572C9.92043 0.169191 10.4264 0 10.9953 0C11.5641 0 12.0733 0.169191 12.5227 0.507572L20.9849 6.91429C21.3023 7.14686 21.5506 7.44333 21.7297 7.80372C21.9099 8.16305 22 8.54386 22 8.94614V22.605C22 23.0261 21.8434 23.3933 21.5301 23.7066C21.2169 24.0198 20.8497 24.1764 20.4286 24.1764H14.3251C13.9648 24.1764 13.663 24.0549 13.42 23.8119C13.177 23.5678 13.0554 23.266 13.0554 22.9067V14.9301H8.94457V22.9067C8.94457 23.2671 8.82305 23.5688 8.58 23.8119C8.33695 24.0549 8.03576 24.1764 7.67643 24.1764H1.57143C1.15029 24.1764 0.783095 24.0198 0.469857 23.7066C0.156619 23.3933 0 23.0261 0 22.605Z" fill="#F7F7F7"/>
+          </svg>
+        </button>
+        <button class="nav-about-btn" onclick="showScreen('screen-about')" data-i18n="nav-about">About</button>
+      </nav>
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('da')">DA</button>
+      </div>
+    </div>
+
+    <div class="inner">
+      <div class="back-nav">
+        <button class="back-btn" onclick="showScreen('screen-home')" aria-label="Back">
+          <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.8 6L7.4 10.6L6 12L0 6L6 0L7.4 1.4L2.8 6Z" fill="#f7f7f7"/>
+          </svg>
+        </button>
+        <h2 class="section-title" data-i18n="about-section">About</h2>
+      </div>
+
+      <div class="content-card">
+        <img class="content-image" src="images/about_image.jpg" alt="About landslides">
+        <div class="content-text">
+          <h3 class="term-title" data-i18n="concept-title">Concept</h3>
+          <p class="term-desc" data-i18n="concept-desc1">Large and extremely fast flow of boulders in steep terrain. A landslide is actually a current, but the term is commonly used and is included here as a technical term.</p>
+          <p class="term-desc" data-i18n="concept-desc2">Large and extremely fast flow of boulders in steep terrain. A landslide is actually a current, but the term is commonly used and is included here as a technical term.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  var currentLang = 'en';
+  var currentTerm = 0;
+
+  var termsData = [
+    // Row 1 (y=105)
+    { img: 'https://www.figma.com/api/mcp/asset/205a50d0-8e63-4baf-b63f-f0267fc0b51c', title: 'Bagvæg', sub: '(Main scarp)', desc: 'A steep surface on the undisturbed ground at the upper edge of the landslide, below the crown.' },
+    { img: 'https://www.figma.com/api/mcp/asset/807be003-b0f4-4e13-be6e-71c0564d99d2', title: 'Brudflade', sub: '(Rupture surface)', desc: 'The interface between undisturbed and displaced material.' },
+    { img: 'https://www.figma.com/api/mcp/asset/55899e89-956c-4c22-88e4-bddd8f10420d', title: 'Fod', sub: '(Foot)', desc: 'The lower part of the moved material.' },
+    { img: 'https://www.figma.com/api/mcp/asset/ee0367a0-0a59-4a57-80fc-bfbbcbbed7b2', title: 'Skredar', sub: '(Scarp)', desc: 'Depression in the landscape due to displaced material.' },
+    { img: 'https://www.figma.com/api/mcp/asset/3516eaf0-1fb4-4370-bc5b-cd895a88bf8e', title: 'Skredlegeme', sub: '(Main body)', desc: 'The total amount of material that is or has been in landslides.' },
+    { img: 'https://www.figma.com/api/mcp/asset/c4c04ef0-d9f8-45fb-b1ec-e74258295585', title: 'Top', sub: '(Head)', desc: 'The upper part of the moved material.' },
+    { img: 'https://www.figma.com/api/mcp/asset/d92f8917-a194-42fa-a803-d8b190c6f4bd', title: 'Tå', sub: '(Toe)', desc: 'The outermost part of the moved material.' },
+    // Row 2 (y=775)
+    { img: 'https://www.figma.com/api/mcp/asset/b5d0db03-8db0-4f54-a37d-198044197d59', title: 'Fald', sub: '(Fall)', desc: 'Movement where the material falls into free air.' },
+    { img: 'https://www.figma.com/api/mcp/asset/92c3cf19-2fc7-48b2-806a-c231a5d36d54', title: 'Glidning', sub: '(Slide)', desc: 'Movement where material slides/moves continuously along a fracture surface.' },
+    { img: 'https://www.figma.com/api/mcp/asset/efb27683-af18-4554-9976-3ccab50dca00', title: 'Rotationsglidning', sub: '(Rotational slide)', desc: 'Subdivision of sliding type where the movement occurs along approximately concave fracture surface.' },
+    { img: 'https://www.figma.com/api/mcp/asset/992c18d0-7d58-4130-811f-f4065e337c59', title: 'Skråningsdeformation', sub: '(Slope deformation)', desc: 'Movement where deformation occurs in an entire slope.' },
+    { img: 'https://www.figma.com/api/mcp/asset/a387a573-1fce-4454-8da9-f012d4ce87ee', title: 'Spredning', sub: '(Spread)', desc: 'Movement in which a layer of solid material spreads out and sinks into an underlying layer of soft material.' },
+    { img: 'https://www.figma.com/api/mcp/asset/425fc50a-407f-4ce0-bdde-d60d589d7a0f', title: 'Strømning', sub: '(Flow)', desc: 'Movement where material flows down a slope as a low- or high-viscosity fluid.' },
+    { img: 'https://www.figma.com/api/mcp/asset/f221dc18-9361-4f34-99fa-e04d85695f59', title: 'Translationsglidning', sub: '(Translational slide)', desc: 'Subdivision of sliding type where the movement occurs along approximately a plane fracture surface.' },
+    // Row 3 (y=1445)
+    { img: 'https://www.figma.com/api/mcp/asset/7d88fc81-149d-4bb6-89cc-3e9fa6dee7fc', title: 'Væltning', sub: '(Topple)', desc: 'Movement where material tips forward and spills out of the slope.' },
+    { img: 'https://www.figma.com/api/mcp/asset/4a9b2855-b115-4fbe-a87d-6c3eb88886bc', title: 'Debrisstrøm', sub: '(Debris flow)', desc: 'Rapid flow of water-bearing soil and rocks in sloping terrain.' },
+    { img: 'https://www.figma.com/api/mcp/asset/9f05c617-194b-49fa-b8e0-4dfa67e4ff9f', title: 'Fjeldsidedeformation', sub: '(Rock slope deformation)', desc: 'Slow deformation of an entire mountainside along deep-seated zones of weakness.' },
+    { img: 'https://www.figma.com/api/mcp/asset/4b2ae087-5bc5-4717-bf43-0c57e7fdcb99', title: 'Fjeldskred', sub: '(Rock avalanche)', desc: 'Large and extremely fast flow of boulders in steep terrain. A landslide is actually a current, but the term is commonly used and is included here as a technical term.' },
+    { img: 'https://www.figma.com/api/mcp/asset/a2d31e9c-e660-48c9-b6ce-be5502006a12', title: 'Jordkryb', sub: '(Soil creep)', desc: 'Very slow movement of soil down a slope.' },
+    { img: 'https://www.figma.com/api/mcp/asset/800b175f-50b4-4ed6-a5bd-ec68e663a1c4', title: 'Jordstrøm', sub: '(Earthflow)', desc: 'Stream of fine-grained soil.' },
+    { img: 'https://www.figma.com/api/mcp/asset/8f234ed5-cf71-41a1-a67e-45693b376e7b', title: 'Jordskred', sub: '(Soil/earth slide)', desc: 'Sliding in soil material such as till. Very common in Denmark. Landslides occur actually by sliding, but the term is commonly used and is included here as a technical term.' },
+    // Row 4 (y=2115)
+    { img: 'https://www.figma.com/api/mcp/asset/438349d7-a891-4871-b84e-6f6bad30b2d0', title: 'Komplekst', sub: '(Complex)', desc: 'Landslides involving different types of movement.' },
+    { img: 'https://www.figma.com/api/mcp/asset/b4676a73-a69d-45e8-a657-025e6dd19aa7', title: 'Landskred', sub: '(Landslide)', desc: 'All types of mass movements of geological material in sloping terrain.' },
+    { img: 'https://www.figma.com/api/mcp/asset/724f6db5-52ae-46fd-b40f-91f9e35424e1', title: 'Mudderstrøm', sub: '(Mudflow)', desc: 'Flow of water-bearing soil.' },
+    { img: 'https://www.figma.com/api/mcp/asset/b2d65bdb-3a45-4181-b0ff-b3231035dbcd', title: 'Solifluktion', sub: '(Solifluction)', desc: 'Slow movement of water- and ice-containing soil in permafrost areas.' },
+    { img: 'https://www.figma.com/api/mcp/asset/c7374bd3-089c-4e3c-b7a1-5bce9d3ed0c6', title: 'Stenskred', sub: '(Rockslide)', desc: 'Sliding in solid rock material. Rock slides actually occur by sliding, but the term is commonly used and is included here as a technical term.' },
+    { img: 'https://www.figma.com/api/mcp/asset/7fdfa942-6d6e-4d11-9f2e-b22a3663ea5b', title: 'Aktivt', sub: '(Active)', desc: 'Landslide in motion.' },
+    { img: 'https://www.figma.com/api/mcp/asset/7dcc7853-67ef-4097-a33c-a59b8839f615', title: 'Hvilende', sub: '(Suspended)', desc: 'Landslides that have moved within the most recent annual cycle, but which are not at the moment in motion.' },
+    // Row 5 (y=2834)
+    { img: 'https://www.figma.com/api/mcp/asset/1e30cc5d-8893-4cfa-99a0-a269d846f40f', title: 'Inaktivt', sub: '(Inactive)', desc: 'Landslide that has stopped moving.' },
+    { img: 'https://www.figma.com/api/mcp/asset/153394f9-b172-48ad-92df-4989b2b52f70', title: 'Reaktiveret', sub: '(Reactivated)', desc: 'Landslide that moves again after a period of no movement.' },
+    { img: 'https://www.figma.com/api/mcp/asset/868f31f9-af8b-4129-8f9f-0516d9770e44', title: 'Relikt', sub: '(Relikt)', desc: 'Geomorphological landform formed by landslides long ago.' },
+    { img: 'https://www.figma.com/api/mcp/asset/63eadc51-97c6-4eca-bbef-7910e0bcc0ce', title: 'Afbødning', sub: '(Mitigation)', desc: 'Man-made efforts that reduce the risk associated with geohazards.' },
+    { img: 'https://www.figma.com/api/mcp/asset/87f70441-2eb6-4f8d-8d7f-5caecffd415c', title: 'Fare', sub: '(Hazard)', desc: 'Probability of an adverse event occurring.' },
+    { img: 'https://www.figma.com/api/mcp/asset/17f6b562-e629-4e8c-b127-e42d4edf47bd', title: 'Geofare', sub: '(Geohazard)', desc: 'Geological condition or event that could lead to harm to life, society or the environment.' },
+    { img: 'https://www.figma.com/api/mcp/asset/7290323c-f61d-498b-9f63-173fe245adbe', title: 'Kvikler', sub: '(Quick clay)', desc: 'Marine clay from which binding ions (salt) have been washed out and which can become liquid if exposed to stress or vibrations.' },
+    // Row 6 (y=3553)
+    { img: 'https://www.figma.com/api/mcp/asset/72c9b1f4-ac51-48be-a131-d26527149b4c', title: 'Likvefaktion', sub: '(Liquefaction)', desc: 'Sudden change from solid to liquid soil.' },
+    { img: 'https://www.figma.com/api/mcp/asset/4b869a95-f6d2-4de5-b6ee-322c1e3f7da3', title: 'Risiko', sub: '(Risk)', desc: 'Probability of an event occurring in relation to the consequence of the event.' },
+    { img: 'https://www.figma.com/api/mcp/asset/ae25c7b2-0ec0-4f32-83d9-393c9b2c2be5', title: 'Ustabil skråning', sub: '(Unstable slope)', desc: 'Slope where landslides are developing or there is a high probability of them occurring.' },
+    { img: 'https://www.figma.com/api/mcp/asset/ec00d4a7-8d14-43e4-ac2c-01263eeb6875', title: 'Fald', sub: '(Fall)', desc: 'Rockfalls occur from the limestone cliffs of Stevns and Møn.' },
+    { img: 'https://www.figma.com/api/mcp/asset/b43bf539-bbd5-4ce6-93b3-f9eedddf8c87', title: 'Glidning', sub: '(Slide)', desc: 'Rock slides, possibly caused at Stevns and Møns Klint.' },
+    { img: 'https://www.figma.com/api/mcp/asset/980856e0-f6b1-4fde-bd53-2c9da10b25cc', title: 'Strømning', sub: '(Flow)', desc: 'Landslide occurs in steep terrain in Greenland.' },
+    { img: 'https://www.figma.com/api/mcp/asset/0afdc812-05cc-4f17-ae58-bb6a5dea86a1', title: 'Skråningsdeformation', sub: '(Slope deformation)', desc: 'Mountainside deformation, probably occurring in steep terrain in Greenland.' }
+  ];
+
+  var translations = {
+    en: {
+      'nav-about':     'About',
+      'welcome':       'Hello,<br>welcome to the world of landslides',
+      'learn-btn':     "Let's learn!",
+      'terms-section': 'Landslides terms',
+      'back-btn':      'Back',
+      'next-btn':      'Next',
+      'about-section': 'About',
+      'concept-title': 'Concept',
+      'concept-desc1': 'Large and extremely fast flow of boulders in steep terrain. A landslide is actually a current, but the term is commonly used and is included here as a technical term.',
+      'concept-desc2': 'Large and extremely fast flow of boulders in steep terrain. A landslide is actually a current, but the term is commonly used and is included here as a technical term.'
+    },
+    da: {
+      'nav-about':     'Om',
+      'welcome':       'Hej,<br>velkommen til jordskreddenes verden',
+      'learn-btn':     'Lad os lære!',
+      'terms-section': 'Jordskred begreber',
+      'back-btn':      'Tilbage',
+      'next-btn':      'Næste',
+      'about-section': 'Om',
+      'concept-title': 'Begreb',
+      'concept-desc1': 'Stor og ekstremt hurtig strøm af sten og klippeblokke i stejlt terræn. Et jordskred er faktisk en strøm, men udtrykket bruges almindeligt og er medtaget her som teknisk term.',
+      'concept-desc2': 'Stor og ekstremt hurtig strøm af sten og klippeblokke i stejlt terræn. Et jordskred er faktisk en strøm, men udtrykket bruges almindeligt og er medtaget her som teknisk term.'
+    }
+  };
+
+  function showTerm(index) {
+    currentTerm = index;
+    var term = termsData[index];
+    document.getElementById('term-image').src = term.img;
+    document.getElementById('term-title-el').innerHTML = term.title + ' <span class="term-sub">' + term.sub + '</span>';
+    document.getElementById('term-desc-el').textContent = term.desc;
+    document.getElementById('term-counter').textContent = (index + 1) + ' / ' + termsData.length;
+  }
+
+  function termNext() {
+    if (currentTerm < termsData.length - 1) {
+      showTerm(currentTerm + 1);
+    } else {
+      showScreen('screen-about');
+    }
+  }
+
+  function termBack() {
+    if (currentTerm > 0) {
+      showTerm(currentTerm - 1);
+    } else {
+      showScreen('screen-home');
+    }
+  }
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang;
+
+    var t = translations[lang];
+    document.querySelectorAll('[data-i18n]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n');
+      if (t[key] !== undefined) {
+        el.innerHTML = t[key];
+      }
+    });
+
+    document.querySelectorAll('.lang-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === lang);
+    });
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(function(s) {
+      s.classList.remove('active');
+    });
+    document.getElementById(id).classList.add('active');
+    if (id === 'screen-term') { showTerm(0); }
+    window.scrollTo(0, 0);
+  }
+</script>
+
+</body>
+</html>
