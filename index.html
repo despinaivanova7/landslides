@@ -139,6 +139,13 @@
       margin-top: auto;
     }
 
+    /* ── Term / About screens: fixed height so btn-row is always visible ── */
+    #screen-term,
+    #screen-about {
+      height: 100dvh;
+      min-height: 0;
+    }
+
     /* ── Inner layout for term / about ── */
     #screen-term .inner,
     #screen-about .inner {
@@ -147,6 +154,8 @@
       flex: 1;
       gap: 34px;
       margin-top: 30px;
+      overflow-y: auto;
+      min-height: 0;
     }
 
     /* ── Back nav row ── */
@@ -249,8 +258,6 @@
       display: flex;
       gap: clamp(12px, 12vw, 49px);
       flex-shrink: 0;
-      position: sticky;
-      bottom: 0;
       background: #0e0e0e;
       padding: 12px 0 24px;
       margin: 0 -20px;
@@ -379,11 +386,11 @@
           <p class="term-desc" id="term-desc-el">Large and extremely fast flow of boulders in steep terrain. A landslide is actually a current, but the term is commonly used and is included here as a technical term.</p>
         </div>
       </div>
+    </div>
 
-      <div class="btn-row">
-        <button class="btn-back" onclick="termBack()" data-i18n="back-btn">Back</button>
-        <button class="btn-next" onclick="termNext()" data-i18n="next-btn">Next</button>
-      </div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="termBack()" data-i18n="back-btn">Back</button>
+      <button class="btn-next" onclick="termNext()" data-i18n="next-btn">Next</button>
     </div>
   </div>
 
